@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+
 from app.main import app
 
 # Important: don't raise server exceptions; return 500 so we can assert it
