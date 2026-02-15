@@ -21,7 +21,6 @@ jobs:
       - name: Install dependencies (incl. dev)
         run: uv sync --group dev
 
-
       - name: Ruff (lint)
         run: uv run ruff check .
 
@@ -30,3 +29,20 @@ jobs:
 
       - name: Pytest
         run: uv run pytest -q
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build runtime image
+        run: docker build -t llm-api-service:ci .
+
+      - name: Build test stage
+        run: docker build --target test -t llm-api-service:test .
+
+      - name: Run tests in Docker
+        run: docker run --rm llm-api-service:test
