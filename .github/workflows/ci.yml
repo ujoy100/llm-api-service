@@ -34,15 +34,25 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
 
+    permissions:
+      contents: read
+      packages: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
       - name: Build runtime image
-        run: docker build -t llm-api-service:ci .
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/llm-api-service:latest .
 
-      - name: Build test stage
-        run: docker build --target test -t llm-api-service:test .
-
-      - name: Run tests in Docker
-        run: docker run --rm llm-api-service:test
+      - name: Push runtime image
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/llm-api-service:latest
