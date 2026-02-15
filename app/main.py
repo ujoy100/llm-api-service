@@ -17,6 +17,7 @@ app = FastAPI(title=settings.APP_NAME, version="0.1.0")
 setup_logging(settings.LOG_LEVEL)
 logger = logging.getLogger("app")
 
+
 def lc_config(request: Request, run_name: str, tags: list[str]) -> dict:
     return {
         "run_name": run_name,
@@ -27,6 +28,7 @@ def lc_config(request: Request, run_name: str, tags: list[str]) -> dict:
             "method": request.method,
         },
     }
+
 
 # In-memory job store (resets on server restart)
 JOBS: dict[str, dict] = {}
@@ -140,7 +142,6 @@ def chat(req: ChatRequest, request: Request):
     return ChatResponse(reply=res.content)
 
 
-
 # SSE streaming (best for web UI)
 @app.post("/chat/stream")
 def chat_stream(req: ChatRequest, request: Request):
@@ -148,13 +149,12 @@ def chat_stream(req: ChatRequest, request: Request):
 
     cfg = lc_config(request, run_name="chat_stream_sse", tags=["chat", "stream", "sse"])
 
-
     def generate():
         buffer = ""
 
         # NEW: send request_id as first SSE event
         yield f"event: meta\ndata: request_id={getattr(request.state, 'request_id', '')}\n\n"
-       
+
         try:
             for chunk in llm.stream([HumanMessage(content=req.message)], config=cfg):
                 token = getattr(chunk, "content", "") or ""
@@ -186,11 +186,10 @@ def chat_stream_text(req: ChatRequest, request: Request):
 
     cfg = lc_config(request, run_name="chat_stream_text", tags=["chat", "stream", "text"])
 
-
     def generate():
         # ✅ ADD THIS LINE (first yield)
         yield f"[request_id={getattr(request.state, 'request_id', '')}]\n"
-        
+
         buffer = ""
         try:
             for chunk in llm.stream([HumanMessage(content=req.message)], config=cfg):
