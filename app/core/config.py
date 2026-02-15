@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     LANGSMITH_TRACING: bool = False
     LANGSMITH_API_KEY: str | None = None
     LANGSMITH_PROJECT: str = "llm-api-service"
+    LOG_LEVEL: str = "INFO"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

@@ -7,3 +7,5 @@ langchain
 langchain-core
 langchain-groq
 langchain-community
+
+prometheus-client
